@@ -1,6 +1,7 @@
 # login_page_ui
 
-A new Flutter project.
+Login Page UI 
+<br> idea from - https://dribbble.com/shots/15230513-Sign-up-Daily-UI-001
 
 ## Getting Started
 
