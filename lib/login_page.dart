@@ -1,51 +1,33 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:gradient_borders/gradient_borders.dart';
-import 'package:login_page_ui/login_page.dart';
-import 'package:login_page_ui/model/signUpModel.dart';
+import 'package:gradient_borders/input_borders/gradient_outline_input_border.dart';
+import 'package:login_page_ui/home_page.dart';
+import 'package:login_page_ui/signup_page.dart';
 import 'package:login_page_ui/widgets/appbar_widget.dart';
 import 'package:login_page_ui/widgets/logoBtn.dart';
 import 'package:page_transition/page_transition.dart';
 
-class SignupPage extends StatefulWidget {
+class LoginPage extends StatefulWidget {
   @override
-  State<SignupPage> createState() => _SignupPageState();
+  State<LoginPage> createState() => _LoginPageState();
 }
 
-class _SignupPageState extends State<SignupPage> {
-  String headingAppbar = "Sign up";
+class _LoginPageState extends State<LoginPage> {
+  TextEditingController _emailController = TextEditingController();
+  TextEditingController _passwordController = TextEditingController();
+  final _formKey = GlobalKey<FormState>();
 
-  final _auth = FirebaseAuth.instance;
+  final auth = FirebaseAuth.instance;
 
   List<FocusNode> _focusNodes = [
     FocusNode(),
     FocusNode(),
   ];
 
-  List<FocusNode> _focusNodesEmail = [
-    FocusNode(),
-    FocusNode(),
-    FocusNode(),
-  ];
-
-  TextEditingController _emailController = TextEditingController();
-  TextEditingController _passwordController = TextEditingController();
-  TextEditingController _nameController = TextEditingController();
-
-  final _formKey = GlobalKey<FormState>();
-
   void initState() {
     _focusNodes.forEach((node) {
-      node.addListener(() {
-        setState(() {});
-      });
-    });
-    // super.initState();
-
-    _focusNodesEmail.forEach((node) {
       node.addListener(() {
         setState(() {});
       });
@@ -56,7 +38,6 @@ class _SignupPageState extends State<SignupPage> {
   void dispose() {
     _emailController.dispose();
     _passwordController.dispose();
-    _nameController.dispose();
     super.dispose();
   }
 
@@ -66,102 +47,40 @@ class _SignupPageState extends State<SignupPage> {
 
   @override
   Widget build(BuildContext context) {
+    String headingAppbar = "Log in";
     double deviceWidth = MediaQuery.of(context).size.width;
-
     return Scaffold(
       backgroundColor: Color(0xff101010),
       body: SafeArea(
         child: SingleChildScrollView(
           child: Padding(
-            padding: const EdgeInsets.all(8.0),
+            padding: const EdgeInsets.only(left: 10, right: 10),
             child: Form(
               key: _formKey,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  appBar(context, headingAppbar),
-                  SizedBox(height: 25),
+                  //appbar
+                  appBar(null, headingAppbar),
+
+                  //after appbar
+
+                  SizedBox(height: 50),
+
                   Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: Text(
-                      "Sign up with one of the following options.",
+                      "Log in with one of the following options.",
                       style: TextStyle(color: Color(0xffb8b8b8)),
                     ),
                   ),
-                  SizedBox(height: 10),
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: logoBtn(context),
-                  ),
-                  SizedBox(height: 25),
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.only(left: 8.0, bottom: 4),
-                          child: Text(
-                            "Name",
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 16,
-                            ),
-                          ),
-                        ),
-                        TextFormField(
-                          validator: (value) {
-                            RegExp regex = new RegExp(r'^.{3,}$');
-                            if (value!.isEmpty) {
-                              return ("Name cannot be Empty!");
-                            }
-                            if (!regex.hasMatch(value)) {
-                              return ("Enter Minimum 3 Character For Your Name. ");
-                            }
-                            return null;
-                          },
-                          onSaved: (value) {
-                            _nameController.text = value!;
-                          },
-                          controller: _nameController,
-                          keyboardType: TextInputType.name,
-                          focusNode: _focusNodes[0],
-                          style: TextStyle(color: Colors.white),
-                          decoration: InputDecoration(
-                            suffixIcon: Icon(
-                              Icons.done,
-                              color: _focusNodes[0].hasFocus
-                                  ? Colors.deepPurple
-                                  : Colors.grey,
-                            ),
 
-                            fillColor: Color.fromARGB(100, 32, 32, 32),
-                            filled: true,
+                  SizedBox(height: 13),
 
-                            enabledBorder: OutlineInputBorder(
-                              borderSide: BorderSide(
-                                  color: Color.fromARGB(100, 42, 42, 42),
-                                  width: 2),
-                              borderRadius: BorderRadius.circular(14),
-                            ),
+                  logoBtn(context),
 
-                            focusedBorder: GradientOutlineInputBorder(
-                                borderRadius: BorderRadius.circular(14),
-                                gradient: LinearGradient(
-                                    colors: [Colors.pink, Colors.deepPurple]),
-                                width: 1.4),
-                            hintText: "Enter your Name",
-                            hintStyle: TextStyle(color: Colors.grey),
-                            // labelText: "Email",
-                            // labelStyle: TextStyle(color: Colors.grey),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  SizedBox(
-                    height: 10,
-                  ),
+                  SizedBox(height: 40),
+
                   Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: Column(
@@ -193,14 +112,14 @@ class _SignupPageState extends State<SignupPage> {
                           onSaved: (value) {
                             _emailController.text = value!;
                           },
-                          controller: _emailController,
                           keyboardType: TextInputType.emailAddress,
-                          focusNode: _focusNodesEmail[0],
+                          controller: _emailController,
+                          focusNode: _focusNodes[0],
                           style: TextStyle(color: Colors.white),
                           decoration: InputDecoration(
                             suffixIcon: Icon(
                               Icons.email_outlined,
-                              color: _focusNodesEmail[0].hasFocus
+                              color: _focusNodes[0].hasFocus
                                   ? Colors.deepPurple
                                   : Colors.grey,
                             ),
@@ -229,9 +148,11 @@ class _SignupPageState extends State<SignupPage> {
                       ],
                     ),
                   ),
+
                   SizedBox(
-                    height: 10,
+                    height: 20,
                   ),
+
                   Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: Column(
@@ -295,10 +216,8 @@ class _SignupPageState extends State<SignupPage> {
                     ),
                   ),
 
-                  SizedBox(height: 10),
-
-                  //Signup button
-                  SizedBox(height: 10),
+                  //login button
+                  SizedBox(height: 30),
                   Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: Container(
@@ -311,7 +230,7 @@ class _SignupPageState extends State<SignupPage> {
                       ),
                       child: ElevatedButton(
                         onPressed: () {
-                          signUp(
+                          signIn(
                               _emailController.text, _passwordController.text);
                         },
                         style: ElevatedButton.styleFrom(
@@ -322,14 +241,14 @@ class _SignupPageState extends State<SignupPage> {
                           ),
                         ),
                         child: Text(
-                          'Sign up',
+                          'Log in',
                           style: TextStyle(fontSize: 16),
                         ),
                       ),
                     ),
                   ),
 
-                  //Already have an account button text
+                  //create account button text
 
                   SizedBox(height: 3),
 
@@ -337,15 +256,21 @@ class _SignupPageState extends State<SignupPage> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
-                        "Already have an Account?",
+                        "Don't have an Account ?",
                         style: TextStyle(color: Colors.white),
                       ),
                       TextButton(
                         onPressed: () {
-                          Navigator.of(context).pushNamed('/login');
+                          Navigator.push(
+                              context,
+                              PageTransition(
+                                  type: PageTransitionType.scale,
+                                  alignment: Alignment.bottomCenter,
+                                  duration: Duration(milliseconds: 800),
+                                  child: SignupPage()));
                         },
                         child: Text(
-                          "Log in",
+                          "Sign up",
                           style: TextStyle(
                               color: Colors.white, fontWeight: FontWeight.bold),
                         ),
@@ -361,43 +286,25 @@ class _SignupPageState extends State<SignupPage> {
     );
   }
 
-  void signUp(String email, String password) async {
+//login functionality
+  void signIn(String email, String password) async {
     if (_formKey.currentState!.validate()) {
-      await _auth
-          .createUserWithEmailAndPassword(email: email, password: password)
-          .then((value) => {postDetailsToFirestore()})
+      await auth
+          .signInWithEmailAndPassword(email: email, password: password)
+          .then((uid) => {
+                Fluttertoast.showToast(msg: "Login Successful"),
+                Navigator.of(context).pushAndRemoveUntil(
+                    MaterialPageRoute(builder: (context) => HomePage()),
+                    (route) => false),
+              })
           .catchError((e) {
-        Fluttertoast.showToast(msg: e!.message);
+        Fluttertoast.showToast(
+          toastLength: Toast.LENGTH_LONG,
+          msg: e!.message,
+          // msg:
+          //     "We can't find an account with ${_emailController.text} mail. Try another mail or if you don't have an account, you can sign up.",
+        );
       });
     }
-  }
-
-  postDetailsToFirestore() async {
-    //calling firestore
-    FirebaseFirestore firebaseFirestore = FirebaseFirestore.instance;
-
-    //calling user model(from firebase predefined) and calling sign up model
-    User? user = _auth.currentUser;
-    SignUpModel signUpModel = SignUpModel();
-    //writing all  values
-
-    signUpModel.email = user!.email;
-    signUpModel.name = _nameController.text;
-    signUpModel.uid = user.uid;
-
-    //sending these values
-    await firebaseFirestore
-        .collection("users")
-        .doc(user.uid)
-        .set(signUpModel.toMap());
-    Fluttertoast.showToast(msg: "Account Created Successfully :)");
-
-    Navigator.pushReplacement(
-        context,
-        PageTransition(
-            type: PageTransitionType.scale,
-            alignment: Alignment.bottomCenter,
-            duration: Duration(milliseconds: 800),
-            child: LoginPage()));
   }
 }

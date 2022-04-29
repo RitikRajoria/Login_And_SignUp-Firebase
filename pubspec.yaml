@@ -36,6 +36,11 @@ dependencies:
   cupertino_icons: ^1.0.2
   flutter_svg: ^1.0.3
   gradient_borders: ^0.2.0
+  firebase_auth: ^3.3.16
+  firebase_core: ^1.15.0
+  page_transition: ^2.0.5
+  cloud_firestore: ^3.1.13
+  fluttertoast: ^8.0.9
   
 
 dev_dependencies:
