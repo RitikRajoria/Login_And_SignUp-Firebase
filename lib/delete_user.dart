@@ -285,6 +285,14 @@ class _DeleteUserPageState extends State<DeleteUserPage> {
 
         AuthCredential credential =
             EmailAuthProvider.credential(email: email, password: password);
+        await FirebaseFirestore.instance
+            .collection('users')
+            .doc('${user1!.uid}')
+            .delete()
+            .then((_) => print("deleted from firestore"))
+            .catchError((onError) {
+          print("delete failed: $onError");
+        });
 
         await user!.reauthenticateWithCredential(credential).then((value) {
           value.user!.delete().then((res) {
