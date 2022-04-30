@@ -55,6 +55,10 @@ class _HomePageState extends State<HomePage> {
                     },
                     child: Text("Logout"),
                   ),
+                  ElevatedButton(
+                    onPressed: () {},
+                    child: Text("Delete"),
+                  ),
                 ],
               ),
             ),

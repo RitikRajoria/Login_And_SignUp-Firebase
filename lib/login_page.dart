@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:gradient_borders/input_borders/gradient_outline_input_border.dart';
 import 'package:login_page_ui/home_page.dart';
+import 'package:login_page_ui/reset_pass.dart';
 import 'package:login_page_ui/signup_page.dart';
 import 'package:login_page_ui/widgets/appbar_widget.dart';
 import 'package:login_page_ui/widgets/logoBtn.dart';
@@ -26,7 +27,11 @@ class _LoginPageState extends State<LoginPage> {
     FocusNode(),
   ];
 
+  String? errorMessage;
+  var counter = 0;
+
   void initState() {
+    counter = 0;
     _focusNodes.forEach((node) {
       node.addListener(() {
         setState(() {});
@@ -232,6 +237,8 @@ class _LoginPageState extends State<LoginPage> {
                         onPressed: () {
                           signIn(
                               _emailController.text, _passwordController.text);
+                          print(counter);
+                          setState(() {});
                         },
                         style: ElevatedButton.styleFrom(
                           primary: Colors.transparent,
@@ -252,31 +259,59 @@ class _LoginPageState extends State<LoginPage> {
 
                   SizedBox(height: 3),
 
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        "Don't have an Account ?",
-                        style: TextStyle(color: Colors.white),
-                      ),
-                      TextButton(
-                        onPressed: () {
-                          Navigator.push(
-                              context,
-                              PageTransition(
-                                  type: PageTransitionType.scale,
-                                  alignment: Alignment.bottomCenter,
-                                  duration: Duration(milliseconds: 800),
-                                  child: SignupPage()));
-                        },
-                        child: Text(
-                          "Sign up",
-                          style: TextStyle(
-                              color: Colors.white, fontWeight: FontWeight.bold),
+                  counter >= 2
+                      ? Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              "Forgot your password ?",
+                              style: TextStyle(color: Colors.white),
+                            ),
+                            TextButton(
+                              onPressed: () {
+                                Navigator.push(
+                                    context,
+                                    PageTransition(
+                                        type: PageTransitionType.scale,
+                                        alignment: Alignment.bottomCenter,
+                                        duration: Duration(milliseconds: 800),
+                                        child: ResetPasswordPage()));
+                              },
+                              child: Text(
+                                "Reset Password",
+                                style: TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold),
+                              ),
+                            ),
+                          ],
+                        )
+                      : Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              "Don't have an Account ?",
+                              style: TextStyle(color: Colors.white),
+                            ),
+                            TextButton(
+                              onPressed: () {
+                                Navigator.push(
+                                    context,
+                                    PageTransition(
+                                        type: PageTransitionType.scale,
+                                        alignment: Alignment.bottomCenter,
+                                        duration: Duration(milliseconds: 800),
+                                        child: SignupPage()));
+                              },
+                              child: Text(
+                                "Sign up",
+                                style: TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold),
+                              ),
+                            ),
+                          ],
                         ),
-                      ),
-                    ],
-                  ),
                 ],
               ),
             ),
@@ -289,22 +324,46 @@ class _LoginPageState extends State<LoginPage> {
 //login functionality
   void signIn(String email, String password) async {
     if (_formKey.currentState!.validate()) {
-      await auth
-          .signInWithEmailAndPassword(email: email, password: password)
-          .then((uid) => {
-                Fluttertoast.showToast(msg: "Login Successful"),
-                Navigator.of(context).pushAndRemoveUntil(
-                    MaterialPageRoute(builder: (context) => HomePage()),
-                    (route) => false),
-              })
-          .catchError((e) {
-        Fluttertoast.showToast(
-          toastLength: Toast.LENGTH_LONG,
-          msg: e!.message,
-          // msg:
-          //     "We can't find an account with ${_emailController.text} mail. Try another mail or if you don't have an account, you can sign up.",
-        );
-      });
+      try {
+        await auth
+            .signInWithEmailAndPassword(email: email, password: password)
+            .then((uid) => {
+                  Fluttertoast.showToast(msg: "Login Successful"),
+                  Navigator.of(context).pushAndRemoveUntil(
+                      MaterialPageRoute(builder: (context) => HomePage()),
+                      (route) => false),
+                });
+      } on FirebaseAuthException catch (error) {
+        switch (error.code) {
+          case "invalid-email":
+            errorMessage = "Your email address appears to be malformed.";
+
+            break;
+          case "wrong-password":
+            errorMessage = counter >= 2
+                ? "Forgot Your Password ?"
+                : "Your password is wrong.";
+            counter++;
+
+            break;
+          case "user-not-found":
+            errorMessage = "User with this email doesn't exist.";
+            break;
+          case "user-disabled":
+            errorMessage = "User with this email has been disabled.";
+            break;
+          case "too-many-requests":
+            errorMessage = "Too many requests";
+            break;
+          case "operation-not-allowed":
+            errorMessage = "Signing in with Email and Password is not enabled.";
+            break;
+          default:
+            errorMessage = "An undefined Error happened.";
+        }
+        Fluttertoast.showToast(msg: errorMessage!);
+        print(error.code);
+      }
     }
   }
 }

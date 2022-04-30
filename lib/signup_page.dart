@@ -19,6 +19,7 @@ class _SignupPageState extends State<SignupPage> {
   String headingAppbar = "Sign up";
 
   final _auth = FirebaseAuth.instance;
+  
 
   List<FocusNode> _focusNodes = [
     FocusNode(),
