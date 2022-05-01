@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:login_page_ui/delete_user.dart';
 import 'package:login_page_ui/login_page.dart';
 import 'package:login_page_ui/model/signUpModel.dart';
+import 'package:login_page_ui/reset_pass.dart';
 import 'package:page_transition/page_transition.dart';
 
 class HomePage extends StatefulWidget {
@@ -65,9 +66,23 @@ class _HomePageState extends State<HomePage> {
                               type: PageTransitionType.scale,
                               alignment: Alignment.bottomCenter,
                               duration: Duration(milliseconds: 800),
-                              child: DeleteUserPage(email: "${loggedInUser.email}",)));
+                              child: DeleteUserPage(
+                                email: "${loggedInUser.email}",
+                              )));
                     },
                     child: Text("Delete"),
+                  ),
+                  ElevatedButton(
+                    onPressed: () {
+                      Navigator.push(
+                          context,
+                          PageTransition(
+                              type: PageTransitionType.scale,
+                              alignment: Alignment.bottomCenter,
+                              duration: Duration(milliseconds: 800),
+                              child: ResetPasswordPage()));
+                    },
+                    child: Text("Reset Password"),
                   ),
                 ],
               ),
