@@ -21,6 +21,8 @@ class _HomePageState extends State<HomePage> {
 
   @override
   void initState() {
+    loggedInUser.email = "";
+    loggedInUser.name = "";
     FirebaseFirestore.instance
         .collection("users")
         .doc(user!.uid)
