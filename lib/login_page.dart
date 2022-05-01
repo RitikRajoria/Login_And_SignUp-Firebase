@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -27,8 +29,11 @@ class _LoginPageState extends State<LoginPage> {
     FocusNode(),
   ];
 
+  Timer? timer;
+
   String? errorMessage;
   var counter = 0;
+  bool isemailVerified = false;
 
   void initState() {
     counter = 0;
@@ -40,9 +45,28 @@ class _LoginPageState extends State<LoginPage> {
     super.initState();
   }
 
+  Future checkEmailVerified() async {
+    try {
+      await FirebaseAuth.instance.currentUser!.reload();
+      setState(() {
+        isemailVerified = FirebaseAuth.instance.currentUser!.emailVerified;
+      });
+
+      print("checking mail");
+
+      if (isemailVerified) {
+        timer?.cancel();
+      }
+    } catch (e) {
+      print(e);
+    }
+  }
+
   void dispose() {
     _emailController.dispose();
     _passwordController.dispose();
+    timer!.cancel();
+
     super.dispose();
   }
 
@@ -286,32 +310,54 @@ class _LoginPageState extends State<LoginPage> {
                             ),
                           ],
                         )
-                      : Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(
-                              "Don't have an Account ?",
-                              style: TextStyle(color: Colors.white),
+                      : resendmailcounter == 1
+                          ? Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text(
+                                  "Want to Resend Verification Email?",
+                                  style: TextStyle(color: Colors.white),
+                                ),
+                                TextButton(
+                                  onPressed: () {
+                                    sendVerificationEmail(userAuth!);
+                                  },
+                                  child: Text(
+                                    "Resend Email",
+                                    style: TextStyle(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.bold),
+                                  ),
+                                ),
+                              ],
+                            )
+                          : Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text(
+                                  "Don't have an Account ?",
+                                  style: TextStyle(color: Colors.white),
+                                ),
+                                TextButton(
+                                  onPressed: () {
+                                    Navigator.push(
+                                        context,
+                                        PageTransition(
+                                            type: PageTransitionType.scale,
+                                            alignment: Alignment.bottomCenter,
+                                            duration:
+                                                Duration(milliseconds: 800),
+                                            child: SignupPage()));
+                                  },
+                                  child: Text(
+                                    "Sign up",
+                                    style: TextStyle(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.bold),
+                                  ),
+                                ),
+                              ],
                             ),
-                            TextButton(
-                              onPressed: () {
-                                Navigator.push(
-                                    context,
-                                    PageTransition(
-                                        type: PageTransitionType.scale,
-                                        alignment: Alignment.bottomCenter,
-                                        duration: Duration(milliseconds: 800),
-                                        child: SignupPage()));
-                              },
-                              child: Text(
-                                "Sign up",
-                                style: TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold),
-                              ),
-                            ),
-                          ],
-                        ),
                 ],
               ),
             ),
@@ -321,18 +367,44 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
+  int resendmailcounter = 0;
+  User? userAuth;
+
+//checking mail verification before sign in
+  // void verifyMailCheck(String email, String password) {
+  //   checkEmailVerified();
+  //   timer = Timer.periodic(Duration(seconds: 3), (_) {
+  //     checkEmailVerified();
+  //     if (isemailVerified) {
+  //       signIn(email, password);
+  //     } else {
+  //       Fluttertoast.showToast(msg: "Verify your mail");
+  //     }
+  //   });
+  // }
+
 //login functionality
   void signIn(String email, String password) async {
     if (_formKey.currentState!.validate()) {
       try {
         await auth
             .signInWithEmailAndPassword(email: email, password: password)
-            .then((uid) => {
+            .then((uid) async {
+          await auth.currentUser!.emailVerified
+              ? {
                   Fluttertoast.showToast(msg: "Login Successful"),
                   Navigator.of(context).pushAndRemoveUntil(
                       MaterialPageRoute(builder: (context) => HomePage()),
                       (route) => false),
-                });
+                }
+              : {
+                  Fluttertoast.showToast(msg: "Verify your mail"),
+                };
+          setState(() {
+            resendmailcounter = 1;
+            userAuth = auth.currentUser;
+          });
+        });
       } on FirebaseAuthException catch (error) {
         switch (error.code) {
           case "invalid-email":
@@ -364,6 +436,14 @@ class _LoginPageState extends State<LoginPage> {
         Fluttertoast.showToast(msg: errorMessage!);
         print(error.code);
       }
+    }
+  }
+
+  Future sendVerificationEmail(User user) async {
+    try {
+      await user.sendEmailVerification();
+    } catch (e) {
+      Fluttertoast.showToast(msg: e.toString());
     }
   }
 }

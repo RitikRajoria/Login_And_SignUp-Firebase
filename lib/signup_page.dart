@@ -6,6 +6,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:gradient_borders/gradient_borders.dart';
 import 'package:login_page_ui/login_page.dart';
 import 'package:login_page_ui/model/signUpModel.dart';
+import 'package:login_page_ui/verify_mail_page.dart';
 import 'package:login_page_ui/widgets/appbar_widget.dart';
 import 'package:login_page_ui/widgets/logoBtn.dart';
 import 'package:page_transition/page_transition.dart';
@@ -19,7 +20,6 @@ class _SignupPageState extends State<SignupPage> {
   String headingAppbar = "Sign up";
 
   final _auth = FirebaseAuth.instance;
-  
 
   List<FocusNode> _focusNodes = [
     FocusNode(),
@@ -125,7 +125,6 @@ class _SignupPageState extends State<SignupPage> {
                             _nameController.text = value!;
                           },
                           controller: _nameController,
-                          keyboardType: TextInputType.name,
                           focusNode: _focusNodes[0],
                           style: TextStyle(color: Colors.white),
                           decoration: InputDecoration(
@@ -391,7 +390,9 @@ class _SignupPageState extends State<SignupPage> {
         .collection("users")
         .doc(user.uid)
         .set(signUpModel.toMap());
-    Fluttertoast.showToast(msg: "Account Created Successfully :)");
+    Fluttertoast.showToast(
+        msg:
+            "Account Created , you can use your your account after email verification. :)");
 
     Navigator.pushReplacement(
         context,
@@ -399,6 +400,6 @@ class _SignupPageState extends State<SignupPage> {
             type: PageTransitionType.scale,
             alignment: Alignment.bottomCenter,
             duration: Duration(milliseconds: 800),
-            child: LoginPage()));
+            child: VerifyMailPage(email: _emailController.text)));
   }
 }
