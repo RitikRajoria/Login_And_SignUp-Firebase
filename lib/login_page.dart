@@ -370,19 +370,6 @@ class _LoginPageState extends State<LoginPage> {
   int resendmailcounter = 0;
   User? userAuth;
 
-//checking mail verification before sign in
-  // void verifyMailCheck(String email, String password) {
-  //   checkEmailVerified();
-  //   timer = Timer.periodic(Duration(seconds: 3), (_) {
-  //     checkEmailVerified();
-  //     if (isemailVerified) {
-  //       signIn(email, password);
-  //     } else {
-  //       Fluttertoast.showToast(msg: "Verify your mail");
-  //     }
-  //   });
-  // }
-
 //login functionality
   void signIn(String email, String password) async {
     if (_formKey.currentState!.validate()) {

@@ -11,8 +11,10 @@ import 'package:page_transition/page_transition.dart';
 import 'model/signUpModel.dart';
 
 class DeleteUserPage extends StatefulWidget {
-  DeleteUserPage({Key? key, required this.email}) : super(key: key);
+  DeleteUserPage({Key? key, required this.email, required this.loggedUserUid})
+      : super(key: key);
   final String email;
+  final String loggedUserUid;
 
   @override
   State<DeleteUserPage> createState() => _DeleteUserPageState();
@@ -221,8 +223,10 @@ class _DeleteUserPageState extends State<DeleteUserPage> {
                           ),
                           child: ElevatedButton(
                             onPressed: () {
-                              DeleteAccount(_emailController.text,
-                                  _passwordController.text);
+                              DeleteAccount(
+                                  _emailController.text,
+                                  _passwordController.text,
+                                  widget.loggedUserUid);
                             },
                             style: ElevatedButton.styleFrom(
                               primary: Colors.transparent,
@@ -278,31 +282,39 @@ class _DeleteUserPageState extends State<DeleteUserPage> {
     );
   }
 
-  void DeleteAccount(String email, String password) async {
+  void DeleteAccount(
+      String email, String password, String loggedUserUid) async {
     if (_formKey.currentState!.validate()) {
       if (widget.email == email) {
-        User? user1 = await _auth.currentUser;
+        User? loggedUser = await _auth.currentUser;
 
         AuthCredential credential =
             EmailAuthProvider.credential(email: email, password: password);
-        await FirebaseFirestore.instance
-            .collection('users')
-            .doc('${user1!.uid}')
-            .delete()
-            .then((_) => print("deleted from firestore"))
-            .catchError((onError) {
-          print("delete failed: $onError");
-        });
 
-        await user!.reauthenticateWithCredential(credential).then((value) {
-          value.user!.delete().then((res) {
-            Navigator.of(context).pushAndRemoveUntil(
-                MaterialPageRoute(builder: (context) => LoginPage()),
-                (route) => false);
-            Fluttertoast.showToast(msg: "Account Deleted Permanently");
+        String loggedUserUID = loggedUserUid;
+
+        await user!
+            .reauthenticateWithCredential(credential)
+            .then((value) async {
+          await FirebaseFirestore.instance
+              .collection('users')
+              .doc('$loggedUserUID')
+              .delete()
+              .then((_) => print("deleted from firestore"))
+              .catchError((onError) {
+            print("delete failed: $onError");
+          }).then((value) async {
+            await user!.reauthenticateWithCredential(credential).then((value) {
+              value.user!.delete().then((res) {
+                Navigator.of(context).pushAndRemoveUntil(
+                    MaterialPageRoute(builder: (context) => LoginPage()),
+                    (route) => false);
+                Fluttertoast.showToast(msg: "Account Deleted Permanently");
+              });
+            });
           });
         }).catchError(
-            (onError) => Fluttertoast.showToast(msg: "Wrong Password"));
+                (onError) => Fluttertoast.showToast(msg: "Wrong Password!"));
       } else {
         Fluttertoast.showToast(msg: "Email don't match with user's mail!");
       }

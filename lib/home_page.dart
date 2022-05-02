@@ -70,6 +70,7 @@ class _HomePageState extends State<HomePage> {
                               duration: Duration(milliseconds: 800),
                               child: DeleteUserPage(
                                 email: "${loggedInUser.email}",
+                                loggedUserUid: "${loggedInUser.uid}",
                               )));
                     },
                     child: Text("Delete"),
