@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:login_page_ui/model/signUpModel.dart';
 import 'package:login_page_ui/provider/google_sign_in.dart';
 import 'package:provider/provider.dart';
@@ -31,7 +32,12 @@ Widget logoBtn(context) {
               child: InkWell(
                 borderRadius: BorderRadius.circular(12),
                 onTap: () {
-                  print("apple");
+                  const snackBar = SnackBar(
+                    duration: Duration(seconds: 5),
+                    content:
+                        Text('This feature is currently blocked by Android.'),
+                  );
+                  ScaffoldMessenger.of(context).showSnackBar(snackBar);
                 },
                 child: Container(
                   height: 80,
@@ -97,5 +103,3 @@ Widget logoBtn(context) {
     ],
   );
 }
-
-
