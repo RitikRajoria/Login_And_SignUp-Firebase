@@ -160,9 +160,7 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
   void PasswordResetMail(String email) async {
     if (_formKey.currentState!.validate()) {
       await _auth.sendPasswordResetEmail(email: email).then((value) {
-        Navigator.of(context).pushAndRemoveUntil(
-            MaterialPageRoute(builder: (context) => LoginPage()),
-            (route) => false);
+        Navigator.pop(context);
         Fluttertoast.showToast(
             msg: "A link has been sent to your registered mail.",
             toastLength: Toast.LENGTH_LONG);

@@ -311,23 +311,48 @@ class _LoginPageState extends State<LoginPage> {
                           ],
                         )
                       : resendmailcounter == 1
-                          ? Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
+                          ? Column(
                               children: [
-                                Text(
-                                  "Want to Resend Verification Email?",
-                                  style: TextStyle(color: Colors.white),
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Text(
+                                      "Want to Resend Verification Email?",
+                                      style: TextStyle(color: Colors.white),
+                                    ),
+                                    TextButton(
+                                      onPressed: () {
+                                        sendVerificationEmail(userAuth!);
+                                      },
+                                      child: Text(
+                                        "Resend Email",
+                                        style: TextStyle(
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.bold),
+                                      ),
+                                    ),
+                                  ],
                                 ),
-                                TextButton(
-                                  onPressed: () {
-                                    sendVerificationEmail(userAuth!);
-                                  },
-                                  child: Text(
-                                    "Resend Email",
-                                    style: TextStyle(
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.bold),
-                                  ),
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Text(
+                                      "Want to login through different Account ?",
+                                      style: TextStyle(color: Colors.white),
+                                    ),
+                                    TextButton(
+                                      onPressed: () {
+                                        resendmailcounter = 0;
+                                        setState(() {});
+                                      },
+                                      child: Text(
+                                        "Yes",
+                                        style: TextStyle(
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.bold),
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ],
                             )
